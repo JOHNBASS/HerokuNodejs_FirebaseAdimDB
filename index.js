@@ -12,16 +12,27 @@ app.set('view engine', 'ejs');
 // Third-party libe
 var firebase = require("firebase");
 const bodyParser = require('body-parser');
+var admin = require('firebase-admin');
 
 //bodyParser
 app.use(bodyParser.json());
 
-//firebase
-var config = {
+//Firebase Admin
 
-}
+// Fetch the service account key JSON file contents
+var serviceAccount = require("./WSEteambuilding-1658e4f8c5f6.json");
 
-firebase.initializeApp(config);
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://name.firebaseio.com"
+});
+
+// //firebase
+// var config = {
+
+// }
+
+// firebase.initializeApp(config);
 
 app.get('/', function(request, response) {
   response.render('pages/index');
@@ -29,7 +40,7 @@ app.get('/', function(request, response) {
 
 //check webhook isalive
 app.get('/alive', function(request, response) {
-  console.log("get content:"+ JSON.stringify(req.body));
+  console.log("get content:"+ JSON.stringify(request.body));
   response.send('service alive');
 });
 
@@ -40,7 +51,7 @@ app.get('/favicon.ico', (request, response) => {
 app.post('/add', function(request, response) {
   console.log("request: "+ JSON.stringify(request.body));
 
-  var db = firebase.database();
+  var db = admin.database();
   var ref = db.ref("/users/").push();
 
   var value = request.body;
@@ -56,7 +67,7 @@ app.post('/add', function(request, response) {
 app.post('/set', function(request, response) {
   console.log("request: "+ JSON.stringify(request.body));
 
-  var db = firebase.database();
+  var db = admin.database();
   var ref = db.ref("/users/");
 
   var value = request.body;
@@ -67,7 +78,7 @@ app.post('/set', function(request, response) {
 
 app.get('/set', function(request, response) {
 
-  var db = firebase.database();
+  var db = admin.database();
   var ref = db.ref("/");
   var value = {
   Test1: "t1",
@@ -82,7 +93,7 @@ app.get('/update', function(request, response) {
   var key = request.query.key;
   var status = request.query.status;
 
-  var db = firebase.database();
+  var db = admin.database();
   var ref = db.ref("/users/"+key);
 
   ref.update(
@@ -94,8 +105,8 @@ app.get('/update', function(request, response) {
 
 app.get('/get', function(request, response) {
   var key = request.query.key;
-  var db = firebase.database();
-  var ref = db.ref("/users/"+key);
+  var db = admin.database();
+  var ref = db.ref("/wse/7410");
 
   ref.once("value", function(snapshot) {
       console.log(snapshot.val()+ " " + snapshot.val().status);
